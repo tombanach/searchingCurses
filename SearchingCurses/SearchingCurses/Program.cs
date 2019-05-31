@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Data.SQLite;
 
 namespace SearchingCurses
 {
@@ -8,43 +8,40 @@ namespace SearchingCurses
     {
         static void Main()
         {
-            var songLyrics = new SongLyrics("Eminem", "Without me");
-            var profanityFinder = new ProfanityFinder();
+            var webcache = new WebCache();
 
-            var vulgar = "Programowanie jest w chuj fajne";
-            var censored = profanityFinder.Censore(songLyrics.lyrics);
+            var eminem = new Artist("Eminem");
+            eminem.songTitles = new List<string>
+            {
+                "Lose Yourself",
+                "Not Afraid",
+                "Sing for the Moment"
+            };
 
-            Console.WriteLine(censored);
+            eminem.CalculateSwearAndWordCount();
+            eminem.DisplayStatistics();
 
             Console.WriteLine("Done.");
             Console.ReadLine();
         }
     }
 
-    internal class ProfanityFinder
+    internal class WebCache
     {
-        private string[] badWords;
-        public ProfanityFinder()
+        SQLiteConnection connection;
+        public WebCache()
         {
-            var dictFile = File.ReadAllText("profanities.txt");
-            dictFile = dictFile.Replace("*", "");
-            dictFile = dictFile.Replace("(", "");
-            dictFile = dictFile.Replace(")", "");
-            badWords = dictFile.Split(new[] { "\",\"" }, StringSplitOptions.None);
+            connection = new SQLiteConnection("Data Source=WebCache.sqlite");
+            connection.Open();
         }
 
-        internal object Censore(string text)
+        public void SaveInCache(string url, string data)
         {
-            foreach (var word in badWords)
-                text = RemoveBadWord(text, word);
-
-            return text;
-        }
-
-        static string RemoveBadWord(string text, string word)
-        {
-            var pattern = "\\b" + word + "\\b";
-            return Regex.Replace(text, pattern, "____", RegexOptions.IgnoreCase);
+            var sql = new SQLiteCommand(
+                "INSERT INTO cache (url, data) VALUES (?, ?)", connection);
+            sql.Parameters.Add(url, DbType.String);
+            sql.Parameters.Add(data, DbType.String);
+            sql.ExecuteNonQuery();
         }
     }
 }
