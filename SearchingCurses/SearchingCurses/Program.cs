@@ -8,40 +8,35 @@ namespace SearchingCurses
     {
         static void Main()
         {
-            var webcache = new WebCache();
-
             var eminem = new Artist("Eminem");
-            eminem.songTitles = new List<string>
+             eminem.songTitles = new List<string>
             {
                 "Lose Yourself",
                 "Not Afraid",
-                "Sing for the Moment"
+                "Sing for the Moment",
+                "Without Me",
+                "The Real Slim Shady",
+                "Stan",
+                "Rap God"
             };
 
             eminem.CalculateSwearAndWordCount();
             eminem.DisplayStatistics();
 
+            var nickiMinaj = new Artist("Nicki Minaj");
+            nickiMinaj.songTitles = new List<string>
+            {
+                "Bang Bang",
+                "Super Bass",
+                "Anaconda",
+                "Starships"
+            };
+
+            nickiMinaj.CalculateSwearAndWordCount();
+            nickiMinaj.DisplayStatistics();
+
             Console.WriteLine("Done.");
             Console.ReadLine();
         }
-    }
-
-    internal class WebCache
-    {
-        SQLiteConnection connection;
-        public WebCache()
-        {
-            connection = new SQLiteConnection("Data Source=WebCache.sqlite");
-            connection.Open();
-        }
-
-        public void SaveInCache(string url, string data)
-        {
-            var sql = new SQLiteCommand(
-                "INSERT INTO cache (url, data) VALUES (?, ?)", connection);
-            sql.Parameters.Add(url, DbType.String);
-            sql.Parameters.Add(data, DbType.String);
-            sql.ExecuteNonQuery();
-        }
-    }
+    }    
 }
